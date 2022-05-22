@@ -1,0 +1,17 @@
+tweepy
+pandas
+numpy
+csv
+re
+string
+glob
+random
+requests
+PIL
+matplotlib
+nltk
+textblob
+plotly
+chart_studio
+wordcloud
+emot
