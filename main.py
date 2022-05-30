@@ -25,8 +25,6 @@
 # ## 1. Import Libraries
 # 
 
-# In[1]:
-
 
 import tweepy # for tweet mining
 import pandas as pd # for data manipulation and analysis
@@ -73,7 +71,6 @@ from emot.emo_unicode import UNICODE_EMO, EMOTICONS # For emojis
 # ## 2. Tweets Mining
 # 
 
-# In[3]:
 
 
 consumer_key = 'XXXXXXXXXXXXXXXXXX'
@@ -81,8 +78,6 @@ consumer_secret = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
 access_key= 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
 access_secret = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
 
-
-# In[4]:
 
 
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret) # Pass in Consumer key and secret for authentication by API
@@ -94,8 +89,6 @@ api = tweepy.API(auth,wait_on_rate_limit=True,wait_on_rate_limit_notify=True) # 
 # I created 4 different functions for the different search queries I had and stored them in a csv file. This is because I ran the program for 3 consecutive days 22nd to 25th of December. 
 # For the 1st run, I did not have to specify the __"since_id"__ but I had to for the following days so that Twitter API does not return Tweets I already had. 
 # Another thing to note is you don't have to specify a sleep time for your function. Tweepy has a built-in attribute "wait_on_rate_limit" which I specified above.
-
-# In[4]:
 
 
 def get_tweets2(search_query2, num_tweets2, since_id_num2):
@@ -119,8 +112,6 @@ def get_tweets2(search_query2, num_tweets2, since_id_num2):
             csv_writer2.writerow([tweet_id, created_at, text, location, retweet, favorite]) # write each row
 
 
-# In[ ]:
-
 
 search_words2 = "\"2020 has been\"" # Specifying exact phrase to search
 # Exclude Links, retweets, replies
@@ -129,8 +120,6 @@ with open('tweets_2020_has_been.csv', encoding='utf-8') as data:
     latest_tweet = int(list(csv.reader(data))[-1][0]) # Return the most recent tweet ID
 get_tweets2(search_query2, 10000, latest_tweet)
 
-
-# In[6]:
 
 
 # Same as above
@@ -156,8 +145,6 @@ def get_tweets3(search_query3, num_tweets3, since_id_num3):
             csv_writer3.writerow([tweet_id, created_at, text, location, retweet, favorite])
 
 
-# In[7]:
-
 
 search_words3 = "\"2020 was a\"" # Specifying exact phrase to search
 # Exclude Links, retweets, replies
@@ -167,7 +154,6 @@ with open('tweets_2020_was_a.csv', encoding='utf-8') as data:
 get_tweets3(search_query3, 10000, latest_tweet)
 
 
-# In[8]:
 
 
 # Same as above
@@ -193,8 +179,6 @@ def get_tweets4(search_query4, num_tweets4, since_id_num4):
             csv_writer4.writerow([tweet_id, created_at, text, location, retweet, favorite])
 
 
-# In[ ]:
-
 
 search_words4 = "\"this year has been\"" # Specifying exact phrase to search
 # Exclude Links, retweets, replies
@@ -203,8 +187,6 @@ with open('tweets_this_year_has_been.csv',encoding='utf-8') as data:
     latest_tweet=int(list(csv.reader(data))[-1][0]) # Return the most recent tweet ID
 get_tweets4(search_query4,10000,latest_tweet)
 
-
-# In[10]:
 
 
 def get_tweets5(search_query5, num_tweets5, since_id_num5):
@@ -229,7 +211,6 @@ def get_tweets5(search_query5, num_tweets5, since_id_num5):
             csv_writer5.writerow([tweet_id, created_at, text, location, retweet, favorite])
 
 
-# In[11]:
 
 
 search_words5 = "\"this year was a\"" # Specifying exact phrase to search
@@ -240,8 +221,6 @@ get_tweets5(search_query5, 10000, latest_tweet)
 
 
 # ### Combining all Tweets into single Pandas Dataframe
-
-# In[22]:
 
 
 path = r'./Data'  # use your path
@@ -262,44 +241,30 @@ tweets_df.head()
 # The dataframe in Section 2 were cleaned in this section. Duplicate values were checked and removed. It is also important to mention that the Tweet ID was considered as the Primary key for all the dataframe. 
 # I also replaced "NaN" values in Location column because if used for Location Geocoding, "NaN" values return Coordinates which should not be.
 
-# In[23]:
-
 
 tweets_df.shape #Get number of rows and columns
-
-
-# In[24]:
-
 
 tweets_df.duplicated(subset='tweet_id').sum() # Check for duplicate values
 
 
-# In[25]:
 
 
 tweets_df=tweets_df.drop_duplicates(subset=['tweet_id']) # drop duplicate values
 
 
-# In[26]:
 
 
 tweets_df.shape # Check the shape after dropping duplicates
 
 
-# In[27]:
 
 
 tweets_df.isna().any() # Check for "NaN" values
 
 
-# In[29]:
 
 
 tweets_df['location']=tweets_df['location'].fillna('No location') # Replace "NaN" values with "No Location"
-
-
-# In[30]:
-
 
 tweets_df.isna().any() # Check for "NaN" values again
 
@@ -309,7 +274,6 @@ tweets_df.isna().any() # Check for "NaN" values again
 # I ended up using the HERE Developer API to return Longitude, Latitude & Country names for each tweet. One key thing is if you send a request with a "NaN" or Null value to the API, it will return an actual location.
 #  This is why I had to replace "NaN" values with "No Location" in the step on Data Cleaning. __It is also important to study your dataframe to ensure you are getting the expected results. This is how I caught this discrepancy__
 
-# In[29]:
 
 
 URL = "https://geocode.search.hereapi.com/v1/geocode"  # Deevloper Here API link
@@ -324,13 +288,7 @@ def getCoordinates(location):
     return data
 
 
-# In[30]:
-
-
 tweets_df['Location_data']=tweets_df['location'].apply(getCoordinates) # Apply getCoordinates Function
-
-
-# In[31]:
 
 
 # a function to extract required coordinates information to the tweets_df dataframe
@@ -356,20 +314,11 @@ def getLocation(location):
     return result
 
 
-# In[ ]:
-
 
 tweets_df['location']=tweets_df['location_data'].apply(getLocation) #apply getLocation function
 
 
-# In[33]:
-
-
 tweets_df.head() # Check dataframe first 5 rows
-
-
-# In[34]:
-
 
 # Extraction of Location Coordinates and Country names to different columns
 tweets_df[['Latitude', 'Longitude', 'Country_Code',
@@ -377,13 +326,9 @@ tweets_df[['Latitude', 'Longitude', 'Country_Code',
                                            index=tweets_df.index)
 
 
-# In[35]:
-
-
 tweets_df.head() # Check dataframe first 5 rows
 
 
-# In[35]:
 
 
 # Drop unnecessary columns
@@ -393,8 +338,6 @@ tweets_df.columns=['Tweet_ID','Time_Created','Tweet','Retweet_Count','Favorite_C
                    'Latitude','Longitude','Country_Code','Country_Name']
 
 
-# In[38]:
-
 
 tweets_df.head() # Check dataframe first 5 rows
 
@@ -402,8 +345,6 @@ tweets_df.head() # Check dataframe first 5 rows
 # ## 5. Tweets Processing
 # To reach the ultimate goal, there was a need to clean up the individual tweets. To make this easy, I created several functions in my Python code which I further applied to the "Tweets" column in my Pandas data frame to produce the desired results. 
 # Also, for my Word Cloud, I wanted to only show the words used to describe 2020, so I created a function to extract only the adjectives to a new column.
-
-# In[30]:
 
 
 # Function to remove punctuations, links, emojis, and stop words
@@ -434,8 +375,6 @@ def getAdjectives(tweet):
     return " ".join(tweet)  # join words with a space in between them
 
 
-# In[31]:
-
 
 # Defining my NLTK stop words and my user-defined stop words
 stop_words = list(stopwords.words('english'))
@@ -452,13 +391,8 @@ emojis = list(UNICODE_EMO.keys())  # full list of emojis
 
 # ### An example of how the above function works is shown below
 
-# In[63]:
-
 
 print(preprocessTweets("2020 was a year of difficulty. It was sad, but I am happy with how things worked out for me"))
-
-
-# In[33]:
 
 
 # Apply preProcessTweets function to the 'Tweet' column to generate a new column called 'Processed Tweets'.
@@ -466,20 +400,12 @@ print(preprocessTweets("2020 was a year of difficulty. It was sad, but I am happ
 tweets_df['Processed_Tweets'] = tweets_df['Tweet'].apply(preprocessTweets)
 
 
-# In[34]:
-
-
 # Apply getAdjectives function to the new 'Processed Tweets' column to generate a new column called 'Tweets_Adjectives'
 tweets_df['Tweets_Adjectives'] = tweets_df['Processed_Tweets'].apply(getAdjectives)
 
 
-# In[35]:
-
-
 tweets_df.head() # Check dataframe first 5 rows
 
-
-# In[39]:
 
 
 # function to return words to their base form using Lemmatizer
@@ -490,7 +416,6 @@ def preprocessTweetsSentiments(tweet):
     return " ".join(lemma_words)
 
 
-# In[40]:
 
 
 # Apply preprocessTweetsSentiments function to the 'Processed Tweets' column to generate a new column
@@ -498,13 +423,7 @@ def preprocessTweetsSentiments(tweet):
 tweets_df['Tweets_Sentiments'] = tweets_df['Processed_Tweets'].apply(preprocessTweetsSentiments)
 
 
-# In[41]:
-
-
 tweets_df.head() # Check dataframe first 5 rows
-
-
-# In[43]:
 
 
 # I had to write my results to a csv file at every instance due to the amount of time it took for the preprocessTweets
@@ -516,15 +435,10 @@ tweets_df.to_csv('Tweets_Processed.csv',encoding='utf-8-sig', index=False)
 # ## 6. Data Exploration
 # In this section, the aim was to show the most common words used by Twitter Users to describe 2020. This was made possible by the "getAdjectives" function in Section 5. I also made use of WordCloud and MatPlotlib for this task.
 
-# In[44]:
-
 
 # Extract all tweets into one long string with each word separate with a "space"
 tweets_long_string = tweets_df['Tweets_Adjectives'].tolist()
 tweets_long_string = " ".join(tweets_long_string)
-
-
-# In[58]:
 
 
 # Import Twitter Logo
@@ -539,16 +453,12 @@ plt.axis('off') # Remove axis
 plt.show() # Display image
 
 
-# In[59]:
-
 
 # Create function to generate the blue colour for the Word CLoud
 
 def blue_color_func(word, font_size, position, orientation, random_state=None,**kwargs):
     return "hsl(210, 100%%, %d%%)" % random.randint(50, 70)
 
-
-# In[60]:
 
 
 # Instantiate the Twitter word cloud object
@@ -568,15 +478,10 @@ plt.axis('off')
 plt.show()
 
 
-# In[63]:
-
-
 twitter_wc.to_file("wordcloud.png") #save to a png file
 
 
 # #### Analyzing Top Words in the Word Cloud
-
-# In[45]:
 
 
 # Combine all words into a list
@@ -588,8 +493,6 @@ for item in tweets_long_string:
         tweets_list.append(i)
 
 
-# In[46]:
-
 
 # Use the Built-in Python Collections module to determine Word frequency
 from collections import Counter
@@ -599,15 +502,11 @@ df.columns = ['Words', 'Count']
 df.sort_values(by='Count', ascending=False, inplace=True)
 
 
-# In[47]:
-
 
 df.head(10)  # Check dataframe first 10 rows
 
 
 # ### Top 10 Words in Twitter Users' 2020 Reflections
-
-# In[54]:
 
 
 # print(px.colors.sequential.Blues_r) to get the colour list used here. Please note, I swatched some colours
@@ -665,17 +564,13 @@ fig.update_layout(annotations=annotations)
 fig.show(renderer = 'png')
 
 
-# In[331]:
-
-
 # Export to Plot to Chart Studio using my Chart Studio Credentials
 py.plot(fig, filename = 'Twitter Users 2020 Refelections (10 Most Common Words)', auto_open=True)
 
 
 # ## 7. Sentiment Analysis
-# In this section, the aim was to show the most common words used by Twitter Users to describe 2020. This was made possible byt the getAdjectives function. I also made use of WordCloud and MatPlotlib for this task.
-
-# In[55]:
+# In this section, the aim was to show the most common words used by Twitter Users to describe 2020. This was made possible byt the getAdjectives function. 
+# I also made use of WordCloud and MatPlotlib for this task.
 
 
 # Create function to obtain Subjectivity Score
@@ -696,8 +591,6 @@ def getSentimentTextBlob(polarity):
         return "Positive"
 
 
-# In[56]:
-
 
 # Apply all functions above to respective columns
 tweets_df['Subjectivity']=tweets_df['Tweets_Sentiments'].apply(getSubjectivity)
@@ -705,27 +598,18 @@ tweets_df['Polarity']=tweets_df['Tweets_Sentiments'].apply(getPolarity)
 tweets_df['Sentiment']=tweets_df['Polarity'].apply(getSentimentTextBlob)
 
 
-# In[75]:
-
 
 # See quick results of the Sentiment Analysis
 tweets_df['Sentiment'].value_counts()
 
-
-# In[76]:
 
 
 # Create dataframe for Count of Sentiment Categories
 bar_chart = tweets_df['Sentiment'].value_counts().rename_axis('Sentiment').to_frame('Total Tweets').reset_index()
 
 
-# In[77]:
-
-
 bar_chart # Display dataframe
 
-
-# In[62]:
 
 
 sentiments_barchart = px.bar(bar_chart, x = 'Sentiment', y='Total Tweets', color='Sentiment')
@@ -740,7 +624,6 @@ sentiments_barchart.show(renderer = 'png') #Display plot.
 # Note, I further customized the plot on Chart Studio for my Medium post
 
 
-# In[121]:
 
 
 # Export to Plot to Chart Studio using my Chart Studio Credentials. 
@@ -750,26 +633,21 @@ py.plot(sentiments_barchart, filename = 'Distribution of Sentiments Results', au
 # ## WE MADE IT!! 
 # ### Preview the resulting dataframe in preparation for export to Tableau
 
-# In[78]:
 
 
 tweets_df.head() # Check dataframe first 5 rows
 
 
-# In[47]:
 
 
 # Remove Unnecessary columns. I used copy here because I wanted a datframe that does not impact my original dataframe
 tableau_df = tweets_df.drop((['Processed_Tweets','Tweets_Sentiments','Subjectivity','Polarity']), axis=1).copy(deep=True)
 
 
-# In[333]:
 
 
 tableau_df.head() # Check dataframe first 5 rows
 
-
-# In[339]:
 
 
 # Export to Excel file. You can link Python to Tableau by the way but I Ihaven't learned that yet

@@ -1,13 +1,7 @@
 tweepy
 pandas
 numpy
-csv
-re
-string
-glob
-random
 requests
-PIL
 matplotlib
 nltk
 textblob
