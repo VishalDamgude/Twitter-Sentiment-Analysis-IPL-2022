@@ -118,10 +118,9 @@ def getAdjectives(tweet):
 
 # Defining my NLTK stop words and my user-defined stop words
 stop_words = list(stopwords.words('english'))
-user_stop_words = ['2022', 'IPL', 'ipl', 'much', 'next', 'cant', 'wont', 'hadnt',
-                    'havent', 'hasnt', 'isnt', 'shouldnt', 'couldnt', 'wasnt', 'werent',
-                    'mustnt', '’', '...', '..', '.', '.....', '....', 'been…', 'exciting', 'boring',
-                    'interesting', 'year', 'been', 'next']
+user_stop_words = ['2022', 'final', 'win', 'new', 'IPL', 'ipl', 'much', 'next', 'cant', 'wont', 'hadnt',
+                    'havent', 'hasnt', 'isnt', 'shouldnt', 'couldnt', 'wasnt', 'werent','first','last',
+                    'mustnt', '’', '...', '..', '.', '.....', '....', 'been…', 'year', 'been', 'next']
 alphabets = list(string.ascii_lowercase)
 stop_words = stop_words + user_stop_words + alphabets
 word_list = words.words()  # all words in English language
@@ -164,7 +163,7 @@ tweets_df.head() # Check dataframe first 5 rows
 
 # I had to write my results to a csv file at every instance due to the amount of time it took for the preprocessTweets
 #  function to run
-tweets_df.to_csv('Tweets_Processed.csv',encoding='utf-8-sig', index=False) 
+#tweets_df.to_csv('Tweets_Processed.csv',encoding='utf-8-sig', index=False) 
 # Also, encoding is important when writing text to csv file
 
 
@@ -174,15 +173,15 @@ tweets_long_string = " ".join(tweets_long_string)
 
 
 # Import Twitter Logo
-image = np.array(Image.open('twitter1.png'))
+# image = np.array(Image.open('twitter2.png'))
     
-fig = plt.figure() # Instantiate the figure object
-fig.set_figwidth(14) # set width
-fig.set_figheight(18) # set height
+# fig = plt.figure() # Instantiate the figure object
+# fig.set_figwidth(14) # set width
+# fig.set_figheight(18) # set height
 
-plt.imshow(image, cmap=plt.cm.gray, interpolation='bilinear') # Display data as an image
-plt.axis('off') # Remove axis
-plt.show() # Display image
+# plt.imshow(image, cmap=plt.cm.gray, interpolation='bilinear') # Display data as an image
+# plt.axis('off') # Remove axis
+# plt.show() # Display image
 
 
 
@@ -193,21 +192,165 @@ def blue_color_func(word, font_size, position, orientation, random_state=None,**
 
 
 
-# Instantiate the Twitter word cloud object
-twitter_wc = WordCloud(background_color='white', max_words=1500, mask=image)
+# # Instantiate the Twitter word cloud object
+# twitter_wc = WordCloud(background_color='white', max_words=1500, mask=image)
 
-# generate the word cloud
-twitter_wc.generate(tweets_long_string)
+# # generate the word cloud
+# twitter_wc.generate(tweets_long_string)
 
-# display the word cloud
-fig = plt.figure()
-fig.set_figwidth(14)  # set width
-fig.set_figheight(18)  # set height
+# # display the word cloud
+# fig = plt.figure()
+# fig.set_figwidth(14)  # set width
+# fig.set_figheight(18)  # set height
 
-plt.imshow(twitter_wc.recolor(color_func=blue_color_func, random_state=3),
-           interpolation="bilinear")
-plt.axis('off')
-plt.show()
+# plt.imshow(twitter_wc.recolor(color_func=blue_color_func, random_state=3),
+#            interpolation="bilinear")
+# plt.axis('off')
+# plt.show()
 
 
-twitter_wc.to_file("wordcloud.png") #save to a png file
+# twitter_wc.to_file("wordcloud.png") #save to a png file
+
+
+# Combine all words into a list
+tweets_long_string = tweets_df['Tweets_Adjectives'].tolist()
+tweets_list=[]
+for item in tweets_long_string:
+    item = item.split()
+    for i in item:
+        tweets_list.append(i)
+
+
+
+# Use the Built-in Python Collections module to determine Word frequency
+from collections import Counter
+counts = Counter(tweets_list)
+df = pd.DataFrame.from_dict(counts, orient='index').reset_index()
+df.columns = ['Words', 'Count']
+df.sort_values(by='Count', ascending=False, inplace=True)
+
+
+
+df.head(10)  # Check dataframe first 10 rows
+
+
+# ### Top 10 Words in Twitter Users' 2020 Reflections
+
+
+# print(px.colors.sequential.Blues_r) to get the colour list used here. Please note, I swatched some colours
+
+# Define my colours for the Plotly Plot
+colors = ['rgb(8,48,107)', 'rgb(8,81,156)', 'rgb(33,113,181)', 'rgb(66,146,198)',
+            'rgb(107,174,214)', 'rgb(158,202,225)', 'rgb(198,219,239)',
+            'rgb(222,235,247)', 'rgb(247,251,255)', 'rgb(247,253,255)']
+
+# Set layout for Plotly Subplots
+fig = make_subplots(rows=1, cols=2, specs=[[{"type": "xy"}, { "type": "domain"}]],
+                    vertical_spacing=0.001)
+
+# Add First Plot
+fig.add_trace(go.Bar(x = df['Count'].head(10), y=df['Words'].head(10),marker=dict(color='rgba(66,146,198, 1)',
+            line=dict(color='Black'),),name='Bar Chart',orientation='h'), 1, 1)
+
+# Add Second Plot
+fig.add_trace(go.Pie(labels=df['Words'].head(10),values=df['Count'].head(15),textinfo='label+percent',
+                    insidetextorientation='radial', marker=dict(colors=colors, line=dict(color='DarkSlateGrey')),
+                    name='Pie Chart'), 1, 2)
+# customize layout
+fig.update_layout(shapes=[dict(type="line",xref="paper", yref="paper", x0=0.5, y0=0, x1=0.5, y1=1.0,
+         line_color='DarkSlateGrey', line_width=1)])
+
+# customize plot title
+fig.update_layout(showlegend=False, title=dict(text="Twitter Users' 2020 Refelections <i>(10 Most Common Words)</i>",
+                  font=dict(size=18, )))
+
+# Customize backgroound, margins, axis, title
+fig.update_layout(yaxis=dict(showgrid=False,
+                             showline=False,
+                             showticklabels=True,
+                             domain=[0, 1],
+                             categoryorder='total ascending',
+                             title=dict(text='Common Words', font_size=14)),
+                             xaxis=dict(zeroline=False,
+                             showline=False,
+                             showticklabels=True,
+                             showgrid=True,
+                             domain=[0, 0.42],
+                             title=dict(text='Word Count', font_size=14)),
+                             margin=dict(l=100, r=20, t=70, b=70),
+                             paper_bgcolor='rgba(0,0,0,0)',
+                             plot_bgcolor='rgba(0,0,0,0)')
+
+# Specify X and Y values for Annotations
+x = df['Count'].head(10).to_list()
+y = df['Words'].head(10).to_list()
+
+# Show annotations on plot
+annotations = [dict(xref='x1', yref='y1', x=xa + 350, y=ya, text=str(xa), showarrow=False) for xa, ya in zip(x, y)]
+
+fig.update_layout(annotations=annotations)
+fig.show(renderer = 'png')
+
+
+# Export to Plot to Chart Studio using my Chart Studio Credentials
+py.plot(fig, filename = 'Twitter Users 2020 Refelections (10 Most Common Words)', auto_open=True)
+
+
+# ## 7. Sentiment Analysis
+# In this section, the aim was to show the most common words used by Twitter Users to describe 2020. This was made possible byt the getAdjectives function. 
+# I also made use of WordCloud and MatPlotlib for this task.
+
+
+# Create function to obtain Subjectivity Score
+def getSubjectivity(tweet):
+    return TextBlob(tweet).sentiment.subjectivity
+
+# Create function to obtain Polarity Score
+def getPolarity(tweet):
+    return TextBlob(tweet).sentiment.polarity
+
+# Create function to obtain Sentiment category
+def getSentimentTextBlob(polarity):
+    if polarity < 0:
+        return "Negative"
+    elif polarity == 0:
+        return "Neutral"
+    else:
+        return "Positive"
+
+
+
+# Apply all functions above to respective columns
+tweets_df['Subjectivity']=tweets_df['Tweets_Sentiments'].apply(getSubjectivity)
+tweets_df['Polarity']=tweets_df['Tweets_Sentiments'].apply(getPolarity)
+tweets_df['Sentiment']=tweets_df['Polarity'].apply(getSentimentTextBlob)
+
+
+
+# See quick results of the Sentiment Analysis
+tweets_df['Sentiment'].value_counts()
+
+
+
+# Create dataframe for Count of Sentiment Categories
+bar_chart = tweets_df['Sentiment'].value_counts().rename_axis('Sentiment').to_frame('Total Tweets').reset_index()
+
+
+bar_chart # Display dataframe
+
+
+
+sentiments_barchart = px.bar(bar_chart, x = 'Sentiment', y='Total Tweets', color='Sentiment')
+
+sentiments_barchart.update_layout(title='Distribution of Sentiments Results',
+                                  margin={"r": 0, "t": 30, "l": 0, "b": 0})
+
+sentiments_barchart.show(renderer = 'png') #Display plot. 
+
+
+# Export to Plot to Chart Studio using my Chart Studio Credentials. 
+py.plot(sentiments_barchart, filename = 'Distribution of Sentiments Results', auto_open=True)
+
+
+tweets_df.head() # Check dataframe first 5 rows
+

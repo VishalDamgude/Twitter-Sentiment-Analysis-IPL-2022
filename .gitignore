@@ -157,6 +157,6 @@ Scripts/*
 share/*
 Lib/*
 etc*
-*.png
 *.csv
 pyvenv.cfg
+keys.txt
