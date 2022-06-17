@@ -3,4 +3,4 @@ Sentiment analysis done on 10000 tweets by Twitter users after IPL 2022 final us
 
 # Wordcloud
 
-![Alt text](./Docs/wordcloud5.png?raw=true "Wordcloud")
+![Alt text](./Docs/wordcloud.png?raw=true "Wordcloud")
